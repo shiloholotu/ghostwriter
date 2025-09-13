@@ -27,9 +27,15 @@ def handle_requests(prompt):
 
     return result
 
+
+@app.route("/signup")
 @app.route("/")
-def home():
-    return render_template("index.html")
+def sign_up():
+    return render_template("signup.html")
+
+@app.route("/login")
+def log_in():
+    return render_template("login.html")
 
 @app.route("/data", methods=["GET"])
 def get_data():
