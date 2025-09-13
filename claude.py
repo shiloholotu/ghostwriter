@@ -8,10 +8,12 @@ client = anthropic.Anthropic(
     api_key=api_key,
 )
 
-def prompt_claude(prompt, max_tokens=1024):
+def prompt_claude(prompt, max_tokens=1024, model="claude-sonnet-4-0"):
+    if model not in ("claude-opus-4-1", "claude-opus-4-0", "claude-sonnet-4-0"):
+        model = "claude-sonnet-4-0"
     try:
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=model,
             max_tokens=max_tokens,
             messages=[
                 {
