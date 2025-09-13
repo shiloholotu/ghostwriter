@@ -4,11 +4,37 @@ from claude import *
 from wolfram import *
 app = Flask(__name__)
 
+
+
+def handle_requests(prompt):
+    result = ""
+    try:
+        result = eval(prompt)
+    except (SyntaxError, NameError, ZeroDivisionError) as e:
+        print("Error:", e)
+    else:
+        return result
+    
+    wolf_request = request_wolf(prompt)
+
+    if wolf_request != None:
+        result = wolf_request
+    else:
+        claude_request = prompt_claude(prompt)
+
+        if claude_request != None:
+            result = claude_request
+
+    return result
+
 @app.route("/")
 def home():
     return render_template("index.html")
 
+@app.route("/data", methods=["GET"])
+def get_data():
+    prompt = request.args.get("prompt")
+    return handle_requests(prompt)
 
 if __name__ == "__main__":
-    print(request_wolf("5+5"))
-    ##app.run(debug=True)
+    app.run(debug=True)

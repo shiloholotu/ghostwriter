@@ -15,7 +15,7 @@ def request_wolf(prompt):
              f"&format=plaintext" \
              f"&output=json"
         r = requests.get(query_url).json()
-        print(r)
+        
         if r["queryresult"]["success"] == True:
             plaintext = r["queryresult"]["pods"][1]["subpods"][0]["plaintext"]
             return plaintext
