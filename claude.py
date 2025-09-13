@@ -7,11 +7,41 @@ client = anthropic.Anthropic(
     # defaults to os.environ.get("ANTHROPIC_API_KEY")
     api_key=api_key,
 )
-message = client.messages.create(
-    model="claude-sonnet-4-20250514",
-    max_tokens=1024,
-    messages=[
-        {"role": "user", "content": "Hello, Claude"}
-    ]
-)
-print(message.content)
+
+def prompt_claude(prompt, max_tokens=1024):
+    try:
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=max_tokens,
+            messages=[
+                {
+                    "role": "user",
+                    "content": "If the prompt is requesting information or asking a question, provide the information without extra flavor text. If the user is asking for content generation, return it without extra flavor text.\nPrompt:\n" + prompt
+                }
+            ]
+        )
+        return response.content
+    except anthropic.BadRequestError as e:
+        return None
+    except anthropic.AuthenticationError as e:
+        return None
+    except anthropic.PermissionDeniedError as e:
+        return None
+    except anthropic.NotFoundError as e:
+        return None
+    except anthropic.UnprocessableEntityError as e:
+        return None
+    except anthropic.APIConnectionError as e:
+        return None
+        # print("The server could not be reached")
+        print(e.__cause__)  # an underlying Exception, likely raised within httpx.
+    except anthropic.RateLimitError as e:
+        return None
+        # print("A 429 status code was received; we should back off a bit.")
+    except anthropic.InternalServerError as e:
+        return None
+    except anthropic.APIStatusError as e:
+        # print("Another non-200-range status code was received")
+        # print(e.status_code)
+        # print(e.response)
+        return None
