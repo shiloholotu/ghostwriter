@@ -10,4 +10,5 @@ def home():
 
 
 if __name__ == "__main__":
-    serve(app, host="0.0.0.0", port=8000)
+    print(request_wolf("generate me a one pragraph essay"))
+    ##app.run(debug=True)
