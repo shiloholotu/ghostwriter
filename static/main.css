@@ -1,0 +1,22 @@
+:root{
+    --font-color: rgb(50,50,50);
+    --bg-light-blue: rgb(242,242,247);
+    --light-transp-blue: rgb(0,0,50,0.1);
+    --dark-transp-blue:rgba(0,0,50,.3);
+    --light-shadow: 0 10px 30px rgb(0,0,50,0.1);
+    --pretty-green: rgb(140,223,130);
+    --pretty-yellow: rgb(255 216 107);
+    --pretty-red:rgb(255 109 109);
+    --pretty-purple:rgb(245 152 229);
+    --pretty-blue:rgb(98 168 239);
+    --navbar-gap: max(12vh,100px);
+    --lighter-font-color: rgb(111,111,111);
+}
+
+
+body{
+    margin:0;
+    background:var(--bg-light-blue);
+    color:var(--font-color);
+    font-family: 'Poppins';
+}
