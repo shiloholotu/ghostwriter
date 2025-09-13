@@ -23,7 +23,21 @@ function newDoc(){
     const docs = JSON.parse(localStorage["docs"]);
     docs[key] = newDoc;
     localStorage["docs"] = JSON.stringify(docs);
+
+    return key;
 }
+
+// list doc names and ids
+
+function listDocs(){
+    const docs = JSON.parse(localStorage["docs"]);
+    const ret = [];
+
+    for(let i in docs) ret.push([i,docs[i]]);
+    return ret;
+}
+
+
 
 // saving documents
 
@@ -40,6 +54,7 @@ function saveDoc(id, name, content){
     localStorage["docs"] = JSON.stringify(docs);
 
 }
+
 
 
 // loading documents

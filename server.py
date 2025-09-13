@@ -43,4 +43,4 @@ def get_data():
     return handle_requests(prompt)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

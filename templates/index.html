@@ -20,13 +20,25 @@
     </head>
     
     <body>
-        <div id="docContainter">
-            <input id="docTitle" type="text">
+        <div id="sideBar">
+            <button id="newDocButton"><img src="static/assets/pencil.svg">New Document</button>
+
+            <div style="width:100%; margin:auto; height:2px; background:var(--dark-transp-blue);margin-bottom:10px"></div>
+
+            <div id="docButtons"></div>
+        </div>
+        <div id="docContainer">
+            <input id="docTitle" type="text" value="The Story of Abraham Lincoln">
+            <div style="width:100%;display:flex;margin-bottom:20px;">
+                <button class="editButton"><img src="static/assets/flash.svg">Fill in the blanks</button>
+                <button id="deleteButton" class="editButton" style="margin-left:10px"><img src="static/assets/trash.svg">Delete document</button>
+            </div>
             <div id="docContent" contenteditable="true" id="textbox">
                 Type in me!
             </div>
         </div>
         
+        <script src="static/scripts/local-storage.js"></script>
         <script src="static/scripts/app.js"></script>
         
     </body>
