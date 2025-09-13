@@ -5,47 +5,55 @@ if(localStorage["docs"] == null){
 // creating new documents
 
 function newDoc(){
+
+    // random id key for documents
+    const abc123 = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let key = "";
+    for(let i = 0; i < 10; i++){
+        const ind = parseInt(Math.random() * abc123.length);
+        key += abc123[ind];
+    }
+
     const newDoc = {
+        name:"New Document",
         timestamp: Date.now(),
         content:"Type in me!"
     };
 
     const docs = JSON.parse(localStorage["docs"]);
-
-    // random key to keep document names unique
-    const abc = "abcdefghijklmnopqrstuvwxyz";
-    let key = "";
-    for(let i = 0; i < 10; i++){
-        const ind = parseInt(Math.random() * abc.length);
-        key += abc[ind];
-    }
-
-
-    docs["New Document" + abc] = newDoc;
+    docs[key] = newDoc;
     localStorage["docs"] = JSON.stringify(docs);
 }
 
 // saving documents
 
-function saveDoc(name, content){
+function saveDoc(id, name, content){
     const doc = {
+        name:name,
         timestamp: Date.now(),
         content:content
     };
 
 
     const docs = JSON.parse(localStorage["docs"]);
-
-    docs[name] = newDoc;
+    docs[id] = doc;
     localStorage["docs"] = JSON.stringify(docs);
 
 }
 
+
+// loading documents
+
+function loadDoc(id){
+    const docs = JSON.parse(localStorage(["docs"]));
+    return docs[id];
+}
+
 // deleting documents
 
-function delDoc(name){
+function delDoc(id){
     const docs = JSON.parse(localStorage["docs"]);
-    delete docs[name];
+    delete docs[id];
     localStorage["docs"] = JSON.stringify(docs);
 }
 
