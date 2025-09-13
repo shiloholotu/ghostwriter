@@ -34,10 +34,18 @@ function saveDoc(name, content){
     };
 
 
-     const docs = JSON.parse(localStorage["docs"]);
+    const docs = JSON.parse(localStorage["docs"]);
 
     docs[name] = newDoc;
     localStorage["docs"] = JSON.stringify(docs);
 
+}
+
+// deleting documents
+
+function delDoc(name){
+    const docs = JSON.parse(localStorage["docs"]);
+    delete docs[name];
+    localStorage["docs"] = JSON.stringify(docs);
 }
 
