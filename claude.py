@@ -22,7 +22,19 @@ def prompt_claude(prompt, max_tokens=1024, model="claude-sonnet-4-0"):
                 }
             ]
         )
-        return response.content
+
+        count = client.messages.count_tokens(
+            model=model,
+            max_tokens=max_tokens,
+            messages=[
+                {
+                    "role": "user",
+                    "content": "If the prompt is requesting information or asking a question, provide the information without extra flavor text. If the user is asking for content generation, return it without extra flavor text.\nPrompt:\n" + prompt
+                }
+            ]
+        )
+        
+        return response.content, count
     except anthropic.BadRequestError as e:
         return None
     except anthropic.AuthenticationError as e:

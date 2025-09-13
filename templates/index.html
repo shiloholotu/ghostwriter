@@ -10,6 +10,7 @@
         <!-- google fonts -->
         <link rel="preconnect" href="https://fonts.gstatic.com">
 		<link href="https://fonts.googleapis.com/css?family=Poppins:400,600,800" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text&display=swap" rel="stylesheet">
 
         <!-- our stylesheet-->
         <link rel="stylesheet" href="static/styles/main.css">
@@ -19,7 +20,13 @@
     </head>
     
     <body>
-        <h1>Hello World</h1>
+        <div id="docContainter">
+            <input id="docTitle" type="text">
+            <div id="docContent" contenteditable="true" id="textbox">
+                Type in me!
+            </div>
+        </div>
+        
         <script src="static/scripts/app.js"></script>
         
     </body>
