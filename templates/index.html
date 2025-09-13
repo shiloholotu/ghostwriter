@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        
+
         <meta charset="UTF-8">
-        
+
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1"/>
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        
+
         <!-- google fonts -->
         <link rel="preconnect" href="https://fonts.gstatic.com">
 		<link href="https://fonts.googleapis.com/css?family=Poppins:400,600,800" rel="stylesheet">
@@ -14,11 +14,11 @@
 
         <!-- our stylesheet-->
         <link rel="stylesheet" href="static/styles/main.css">
-        
+
         <title>Web App Template</title>
-         
+
     </head>
-    
+
     <body>
         <div id="sideBar">
             <button id="newDocButton"><img src="static/assets/pencil.svg">New Document</button>
@@ -32,15 +32,16 @@
             <div style="width:100%;display:flex;margin-bottom:20px;">
                 <button class="editButton"><img src="static/assets/flash.svg">Fill in the blanks</button>
                 <button id="deleteButton" class="editButton" style="margin-left:10px"><img src="static/assets/trash.svg">Delete document</button>
+                <button id="saveTxtButton" class="editButton" style="margin-left:10px"><img src="static/assets/floppy-disk.svg">Save as .txt</button>
             </div>
             <div id="docContent" contenteditable="true" id="textbox">
                 Type in me!
             </div>
         </div>
-        
+
         <script src="static/scripts/local-storage.js"></script>
         <script src="static/scripts/app.js"></script>
-        
+
     </body>
-    
+
 </html>
