@@ -1,8 +1,9 @@
 :root{
-    --font-color: rgb(50,50,50);
-    --bg-light-blue: rgb(242,242,247);
-    --light-transp-blue: rgb(0,0,50,0.1);
-    --dark-transp-blue:rgba(0,0,50,.3);
+    --font-color: rgb(242,242,247);
+    --background:rgb(22,27,34);
+    --lighter-gray: rgb(34 42 52);
+    --dark-transp-blue: rgb(97,97,103, .3);
+    --light-transp-blue:rgb(175,175,185,.3);
     --light-shadow: 0 10px 30px rgb(0,0,50,0.1);
     --pretty-green: rgb(140,223,130);
     --pretty-yellow: rgb(255 216 107);
@@ -16,7 +17,103 @@
 
 body{
     margin:0;
-    background:var(--bg-light-blue);
+    background:var(--lighter-gray);
     color:var(--font-color);
     font-family: 'Poppins';
+    display: flex;
+}
+
+
+#sideBar{
+    width: 30%;
+    max-width: 200px;
+    background: var(--background);
+    height: 100vh;
+    padding:15px;
+}
+
+#sideBar button{
+    width: 100%;
+    display: block;
+    background: transparent;
+    color: var(--font-color);
+    font-family: 'Poppins';
+    transition: .25s;
+    outline: none;
+    border: none;
+    text-align: left;
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom:10px;
+}
+
+#sideBar button img{
+    vertical-align: middle;
+    margin-right: 7px;
+    transform: translate(0, -2px);
+}
+
+#sideBar button:hover{
+    background:var(--lighter-gray);
+}
+
+
+#noSavedDocs{
+    margin: 0;
+    padding: 10px;
+    font-size: 13px;
+    opacity: .5;
+}
+
+#docContainer{
+    padding:30px;
+    width: -webkit-fill-available;
+}
+
+#docContent{
+    outline:none;
+    width: 100%;
+}
+
+.editButton{
+    background: none;
+    border: 2px solid white;
+    outline: none;
+    color: white;
+    font-family: 'Poppins';
+    border-radius: 10px;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 20px;
+    opacity: .3;
+    transition: .25s;
+    cursor: pointer;
+}
+
+.editButton img{
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.editButton:hover{
+    opacity: 1;
+    border:2px solid var(--pretty-purple);
+}
+
+#deleteButton:hover{
+    border:2px solid var(--pretty-red);
+}
+
+#docTitle{
+    outline: none;
+    font-family: "dm serif text";
+    font-size: 30px;
+    font-weight: 100;
+    background: none;
+    color: var(--font-color);
+    border: none;
+    width: 100%;
+    margin-bottom:15px;
 }
