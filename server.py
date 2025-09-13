@@ -28,10 +28,10 @@ def handle_requests(prompt):
     return result
 
 
-@app.route("/signup")
+
 @app.route("/")
 def sign_up():
-    return render_template("signup.html")
+    return render_template("index.html")
 
 @app.route("/login")
 def log_in():
