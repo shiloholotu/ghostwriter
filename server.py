@@ -10,6 +10,5 @@ def home():
 
 
 if __name__ == "__main__":
-    print(request_wolf("generate me a one pragraph essay"))
+    print(request_wolf("5+5"))
     ##app.run(debug=True)
-    app.run(debug=True)
