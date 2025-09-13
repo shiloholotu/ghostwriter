@@ -7,7 +7,7 @@ if(localStorage["docs"] == null){
 function newDoc(){
     const newDoc = {
         timestamp: Date.now(),
-        content:""
+        content:"Type in me!"
     };
 
     const docs = JSON.parse(localStorage["docs"]);

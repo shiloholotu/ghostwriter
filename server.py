@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from waitress import serve
-from claude import *
-from wolfram import *
+#from claude import *
+#from wolfram import *
 app = Flask(__name__)
 
 @app.route("/")
