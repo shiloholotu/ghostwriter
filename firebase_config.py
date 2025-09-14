@@ -9,7 +9,7 @@ def initialize_firebase():
         # Initialize with service account key
         if not firebase_admin._apps:
             # Replace with your actual service account key file path
-            cred = credentials.Certificate("ghostwriter/serviceAccountKey.json")
+            cred = credentials.Certificate("serviceAccountKey.json")
             firebase_admin.initialize_app(cred)
         return True
     except Exception as e:
@@ -76,7 +76,7 @@ def verify_password(email, password):
     # 1. Use Firebase Auth on the client side to sign in
     # 2. Send the ID token to the server for verification
     # 3. Or use a custom authentication system with hashed passwords
-    
+
     # For demonstration purposes, we'll simulate password verification
     # In a real app, this would be handled differently
     user_result = get_user_by_email(email)
