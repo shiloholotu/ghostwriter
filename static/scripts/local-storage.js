@@ -12,7 +12,7 @@ function newDoc(){
     }
 
     const newDoc = {
-        name:"New Document",
+        name:"Untitled",
         timestamp: Date.now(),
         content:"Type in me!"
     };

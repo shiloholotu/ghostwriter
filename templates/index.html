@@ -12,11 +12,15 @@
     </head>
     <body>
         <div id="sideBar">
-            <button id="newDocButton"><img src="static/assets/pencil.svg">New Document</button>
+            <button id="newDocButton" onclick="createNewDoc()">
+                <img src="static/assets/pencil.svg">
+                New Document
+            </button>
 
             <div style="width:100%; margin:auto; height:2px; background:var(--dark-transp-blue);margin-bottom:10px"></div>
 
             <div id="docButtons"></div>
+            <button>Sign out</button>
         </div>
         <div id="docContainer">
             <input id="docTitle" type="text" value="The Story of Abraham Lincoln">
@@ -24,9 +28,18 @@
                 <button class="editButton"><img src="static/assets/flash.svg">Fill in the blanks</button>
                 <button id="deleteButton" class="editButton" style="margin-left:10px"><img src="static/assets/trash.svg">Delete document</button>
                 <button id="saveTxtButton" class="editButton" style="margin-left:10px"><img src="static/assets/floppy-disk.svg">Save as .txt</button>
+                <button id="statsButton" class="editButton" style="margin-left:10px"><img src="static/assets/info-circle.svg">Stats</button>
             </div>
             <div id="docContent" contenteditable="true" id="textbox">
                 Type in me!
+            </div>
+            <!-- Stats Popup Overlay -->
+            <div id="statsOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;">
+                <div style="background:#222;padding:30px 40px;border-radius:16px;box-shadow:0 4px 32px #000;color:#fff;min-width:300px;max-width:90vw;">
+                    <h2 style="margin-top:0;">Document Statistics</h2>
+                    <div id="statsContent">Loading...</div>
+                    <button id="closeStatsButton" style="margin-top:20px;padding:8px 20px;border-radius:8px;background:#444;color:#fff;border:none;cursor:pointer;">Close</button>
+                </div>
             </div>
         </div>
         <script src="static/scripts/local-storage.js"></script>
