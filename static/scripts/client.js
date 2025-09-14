@@ -14,6 +14,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (loginForm) {
         loginForm.addEventListener('submit', handleLoginSubmit);
     }
+    
+    // Handle sign out button
+    const signOutButton = document.getElementById('signOutButton');
+    if (signOutButton) {
+        signOutButton.addEventListener('click', handleSignOut);
+    }
 })
 
 function initializeApp() {
@@ -142,4 +148,19 @@ function handleLoginSubmit(event) {
         console.error('Login error:', error);
         alert('Network error. Please try again.');
     });
+}
+
+function handleSignOut() {
+    // Clear all authentication data from localStorage
+    localStorage.removeItem('userData');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('session');
+    
+    // Clear any session cookies
+    document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    
+    console.log('User signed out successfully');
+    
+    // Redirect to signup page
+    window.location.href = '/';
 }
