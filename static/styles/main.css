@@ -23,10 +23,15 @@ body{
     display: flex;
 }
 
+#logoIcon{
+    width: 40px;
+    display: block;
+    margin: auto;
+    margin-bottom: 10px;
+}
 
 #sideBar{
-    width: 30%;
-    max-width: 200px;
+    width: 250px;
     background: var(--background);
     height: 100vh;
     padding:15px;
@@ -126,4 +131,22 @@ body{
     border: none;
     width: 100%;
     margin-bottom:15px;
+}
+
+#docPlaceholder img{
+    width: 200px;
+    display: block;
+    margin: auto;
+    opacity: .1;
+    margin-bottom: 30px;
+    margin-top: 20vh;
+}
+
+#docPlaceholder p{
+    font-size: 20px;
+    text-align: center;
+    width: 300px;
+    /* font-weight: 600; */
+    opacity: .3;
+    margin: auto;
 }

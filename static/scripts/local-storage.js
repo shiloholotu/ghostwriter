@@ -15,7 +15,7 @@ function newDoc(){
     }
 
     const newDoc = {
-        name:"New Document",
+        name:"Untitled",
         timestamp: Date.now(),
         content:"Type in me!"
     };
@@ -60,7 +60,7 @@ function saveDoc(id, name, content){
 // loading documents
 
 function loadDoc(id){
-    const docs = JSON.parse(localStorage(["docs"]));
+    const docs = JSON.parse(localStorage["docs"]);
     return docs[id];
 }
 
