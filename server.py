@@ -7,23 +7,21 @@ from firebase_config import initialize_firebase, create_user, verify_id_token, g
 app = Flask(__name__)
 
 def handle_requests(prompt):
+    """Main processing function: Python then Wolfram then Claude"""
     result = ""
     try:
         result = eval(prompt)
-    except (SyntaxError, NameError, ZeroDivisionError) as e:
-        print("Error:", e)
-    else:
-        return result
-    
-    wolf_request = request_wolf(prompt)
-
-    if wolf_request != None:
-        result = wolf_request
-    else:
-        claude_request = prompt_claude(prompt)
-
-        if claude_request != None:
-            result = claude_request
+    except Exception as e:
+        print(f"Python eval failed. Error: {e}")
+        
+        wolf_result = request_wolf(prompt)
+        if wolf_result is not None:
+            result = wolf_result
+        else:
+            claude_result = prompt_claude(prompt)
+            if claude_result is not None:
+                result = claude_result
+    return result if result else f"Error: Could not process '{prompt}'"
 
     return result
 
@@ -157,6 +155,18 @@ def verify_token():
     except Exception as e:
         print(f"Token verification error: {e}")
         return jsonify({'success': False, 'message': 'Server error occurred'}), 500
+    
+@app.route('/api/process', methods=['POST'])
+def process():
+    data = request.json
+    prompts = data['prompts']
+    results = []
+    
+    for prompt in prompts:
+        result = handle_requests(prompt)  # Your function
+        results.append(result)
+    
+    return jsonify({'results': results})
 
 if __name__ == "__main__":
     initialize_firebase()
