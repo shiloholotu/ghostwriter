@@ -153,10 +153,23 @@ def verify_token():
                 'success': False,
                 'message': result['message']
             }), 401
-            
+        
     except Exception as e:
         print(f"Token verification error: {e}")
         return jsonify({'success': False, 'message': 'Server error occurred'}), 500
+    
+@app.route('/api/process', methods=['POST'])
+def process():
+    print("Processing request...")
+    data = request.json
+    prompts = data['prompts']
+    results = []
+    
+    for prompt in prompts:
+        result = handle_requests(prompt)
+        results.append(result)
+    
+    return jsonify({'results': results})
 
 if __name__ == "__main__":
     initialize_firebase()

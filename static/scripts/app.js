@@ -49,7 +49,7 @@ function renderDocInputs(id){
         
             <input id="docTitle" type="text" value="${cur.name}" oninput="updateTitleSave()">
             <div style="width:100%;display:flex;margin-bottom:20px;">
-                <button class="editButton"><img src="static/assets/flash.svg">Fill in the blanks</button>
+                <button id="processButton" class="editButton" onclick="processDocument()"><img src="static/assets/flash.svg">Fill in the blanks</button>
                 <button id="deleteButton" class="editButton" style="margin-left:10px" onclick="deleteCurrentDoc()"><img src="static/assets/trash.svg">Delete document</button>
             </div>
             <div id="docContent" contenteditable="true" id="textbox"  oninput="updateTitleSave()">
@@ -70,6 +70,15 @@ function saveCurrentDoc(){
     const content = document.getElementById("docContent").innerHTML;
     saveDoc(currentDoc,title,content);
 }
+
+/*
+function setupDocumentEventListeners() {
+    const processButton = document.getElementById("processButton");
+    if (processButton) {
+        processButton.addEventListener("click", processDocument);
+    }
+}
+setupDocumentEventListeners();*/
 
 function openDoc(id){
     if(id == "blank"){
@@ -108,7 +117,7 @@ setInterval(function(){
         saveCurrentDoc();
         renderDocList();
     }
-}, 5000)
+}, 1000)
 
 function updateTitleSave(){
     nextTitleSave = Date.now() + 1000;
