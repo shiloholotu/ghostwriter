@@ -152,6 +152,10 @@ body{
 }
 
 /* Sign out button hold red on hover */
+.signoutButton {
+    color: var(--pretty-red) !important;
+    transition: background 0.2s, color 0.2s;
+}
 .signoutButton:hover {
     background: rgb(245, 73, 73) !important; /* 50% red */
     color: #fff !important;
