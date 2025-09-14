@@ -1,190 +1,185 @@
-// populate side bar with docs
-let currentDoc = "";
+import {Document, docs} from './documents.js'
+import {generateId} from './utils.js'
+let nextTitleSave = 0;
+let currentDoc = null
 const docButtonContainer = document.getElementById("docButtons");
-function renderDocList(){
-    const docList = listDocs();
+const newDocButton = document.getElementById("newDocButton");
 
-    docList.sort((a, b) => b[1].timestamp - a[1].timestamp);
+function renderDocList() {
+    if (!docButtonContainer) return;
 
-
-    let html = "";
-
-    for(let i of docList){
-        if(i[0] == currentDoc) html += `<button class='docButton' style="background:var(--lighter-gray)">${i[1]["name"]}</button>`;
+    docButtonContainer.innerHTML = "";
+    if (docs.length === 0) {
+        docButtonContainer.innerHTML = "<p id='noSavedDocs'>You have no saved documents. Try making one!</p>";
+        return;
     }
 
-    for(let i of docList){
+    // Sort documents: current document first, then by timestamp (newest first)
+    const sortedDocs = [...docs].sort((a, b) => {
+        // If one of them is the current document, put it first
+        if (currentDoc && a.id === currentDoc.id) return -1;
+        if (currentDoc && b.id === currentDoc.id) return 1;
         
-        if(i[0] != currentDoc) html += `<button class='docButton' onclick="openDoc('${i[0]}')">${i[1]["name"]}</button>`;
-        else continue;
-    }
+        // Otherwise sort by timestamp (newest first)
+        return b.timestamp - a.timestamp;
+    });
 
-    if(html == ""){
-        html = "<p id='noSavedDocs'>You have no saved documents. Try making one!</p>"
-    }
+    for (let i = 0; i < sortedDocs.length; i++) { 
+        const docData = sortedDocs[i];
 
-    docButtonContainer.innerHTML = html;
+        const btn = document.createElement("button");
+        btn.className = "docButton";
+        btn.textContent = docData.name;
+
+        if (currentDoc && docData.id === currentDoc.id) {
+            btn.style.background = "var(--lighter-gray)";
+        } else {
+            btn.addEventListener("click", () => openDoc(docData));
+        }
+
+        docButtonContainer.appendChild(btn);
+    }
 }
-renderDocList();
 
 
-
-
-
-function renderDocInputs(id){
+function renderDocInputs(doc) {
+    const docContainer = document.getElementById("docContainer");
+    if (!docContainer) return;
+    
     let html = "";
-    if(id == "blank"){
+    if(doc == "blank"){
         html = `
-            
-            <div id='docPlaceholder'>
+             <div id='docPlaceholder'>
                 <img src="static/assets/logo-white.png">
                 <p>Click on a document or make a new one!</p>
             </div>
-        `
+        `;
     }
     else{
-        currentDoc = id;
-        const cur = loadDoc(id);
+        currentDoc = doc;
         html = `
-        
-            <input id="docTitle" type="text" value="${cur.name}" oninput="updateTitleSave()">
+            <input id="docTitle" type="text" value="${currentDoc.name}">
             <div style="width:100%;display:flex;margin-bottom:20px;">
                 <button class="editButton"><img src="static/assets/flash.svg">Fill in the blanks</button>
-                <button id="deleteButton" class="editButton" style="margin-left:10px" onclick="deleteCurrentDoc()"><img src="static/assets/trash.svg">Delete document</button>
+                <button id="deleteButton" class="editButton" style="margin-left:10px"><img src="static/assets/trash.svg">Delete document</button>
+                <button id="saveTxtButton" class="editButton" style="margin-left:10px"><img src="static/assets/floppy-disk.svg">Save as .txt</button>
+                <button id="statsButton" class="editButton" style="margin-left:10px"><img src="static/assets/info-circle.svg">Stats</button>
             </div>
-            <div id="docContent" contenteditable="true" id="textbox"  oninput="updateTitleSave()">
-                ${cur.content}
+            <div id="docContent" contenteditable="true">
+                ${currentDoc.content}
             </div>
-        `
+        `;
     }
-    document.getElementById("docContainer").innerHTML = html;
+    docContainer.innerHTML = html;
+    
+    // Re-setup event listeners after DOM update
+    if (doc !== "blank") {
+        setupDocumentEventListeners();
+    }
 }
-renderDocInputs("blank");
 
+function setupDocumentEventListeners() {
+    const deleteButton = document.getElementById("deleteButton");
+    if (deleteButton) {
+        deleteButton.addEventListener("click", deleteCurrentDoc);
+    }
+}
 
+function deleteCurrentDoc() {
+    if (currentDoc && currentDoc !== "blank") {
+        const currentIndex = docs.findIndex(doc => doc.id === currentDoc.id);
+        
+        // Delete the current document
+        currentDoc.delDoc();
+        
+        // Find the next document to open
+        let nextDoc = null;
+        if (docs.length > 0) {
+            // If there are remaining docs, open the one at the same index, or the last one if we deleted the last doc
+            const nextIndex = currentIndex < docs.length ? currentIndex : docs.length - 1;
+            nextDoc = docs[nextIndex];
+        }
+        
+        if (nextDoc) {
+            // Open the next document
+            openDoc(nextDoc);
+        } else {
+            // No documents left, show blank state
+            currentDoc = null;
+            renderDocInputs("blank");
+            renderDocList();
+        }
+    }
+}
 
 
 function saveCurrentDoc(){
-    if(currentDoc == "")return;
-    const title = document.getElementById("docTitle").value;
-    const content = document.getElementById("docContent").innerHTML;
-    saveDoc(currentDoc,title,content);
+    if(currentDoc == null || currentDoc === "blank") return;
+    const titleElement = document.getElementById("docTitle");
+    const contentElement = document.getElementById("docContent");
+    
+    if (!titleElement || !contentElement) return;
+    
+    const title = titleElement.value;
+    const content = contentElement.innerHTML;
+    currentDoc.saveDoc(title, content);
+    renderDocList(); // Update sidebar immediately after saving
 }
 
-function openDoc(id){
-    if(id == "blank"){
-        
-
-        const docList = listDocs();
-
-        if(docList.length != 0){
-            docList.sort((a, b) => b[1].timestamp - a[1].timestamp);
-            id = docList[0][0];
-        }
-        else currentDoc = "";
+function openDoc(doc){
+    // Save current doc before switching
+    if (currentDoc && currentDoc !== "blank") {
+        saveCurrentDoc();
     }
-    else saveCurrentDoc();
-    renderDocInputs(id);
+    
+    currentDoc = doc;
+    renderDocInputs(doc);
     renderDocList();
 }
 
-function deleteCurrentDoc(){
-    delDoc(currentDoc);
-    openDoc("blank");
-}
 
-function createNewDoc(){
-    const id = newDoc();
-    openDoc(id);
-}
-
-// autosaving
-
-
-let nextTitleSave = 0;
-setInterval(function(){
-    if(Date.now() > nextTitleSave && nextTitleSave != 0){
-        nextTitleSave = 0;
-        saveCurrentDoc();
-        renderDocList();
+    
+function createNewDoc() {
+    const id = generateId();
+    
+    // Find the next untitled number
+    const untitledDocs = docs.filter(doc => doc.name.startsWith("Untitled"));
+    let nextNumber = 1;
+    
+    while (untitledDocs.some(doc => doc.name === `Untitled ${nextNumber}`)) {
+        nextNumber++;
     }
-}, 5000)
-
-function updateTitleSave(){
-    nextTitleSave = Date.now() + 1000;
+    
+    const docName = `Untitled ${nextNumber}`;
+    const doc = new Document(id, docName, "");
+    openDoc(doc);
 }
 
-
-// Save as .txt button logic
-const saveTxtButton = document.getElementById("saveTxtButton");
-if (saveTxtButton) {
-    saveTxtButton.onclick = function() {
-        const docTitle = document.getElementById("docTitle").value || "document";
-        const docContent = document.getElementById("docContent").innerText;
-        const blob = new Blob([docContent], { type: "text/plain" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = docTitle.replace(/[^a-zA-Z0-9-_]/g, "_") + ".txt";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-    };
-}
-
-// Stats popup logic
-const statsButton = document.getElementById("statsButton");
-const statsOverlay = document.getElementById("statsOverlay");
-const statsContent = document.getElementById("statsContent");
-const closeStatsButton = document.getElementById("closeStatsButton");
-
-function getWordStats(text) {
-    const words = text.trim().split(/\s+/).filter(Boolean);
-    return {
-        wordCount: words.length,
-        charCount: text.length,
-        lineCount: text.split(/\n/).length
-    };
-}
-
-if (statsButton && statsOverlay && statsContent && closeStatsButton) {
-    statsButton.onclick = function() {
-        const docContent = document.getElementById("docContent").innerText;
-        const stats = getWordStats(docContent);
-        statsContent.innerHTML =
-            `<b>Words:</b> ${stats.wordCount}<br>` +
-            `<b>Characters:</b> ${stats.charCount}<br>` +
-            `<b>Lines:</b> ${stats.lineCount}`;
-        statsOverlay.style.display = "flex";
-    };
-    closeStatsButton.onclick = function() {
-        statsOverlay.style.display = "none";
-    };
-    // Optional: close overlay when clicking outside the popup
-    statsOverlay.onclick = function(e) {
-        if (e.target === statsOverlay) statsOverlay.style.display = "none";
-    };
-}
-
-// Auth button logic (bottom of sidebar)
-const authButton = document.getElementById("authButton");
-function getUserEmail() {
-    return localStorage.getItem("userEmail");
-}
-function updateAuthButton() {
-    const email = getUserEmail();
-    if (email) {
-        authButton.textContent = email;
-        authButton.disabled = true;
-        authButton.classList.add("signed-in");
-    } else {
-        authButton.textContent = "Sign In";
-        authButton.disabled = false;
-        authButton.classList.remove("signed-in");
-        authButton.onclick = function() {
-            window.location.href = "login.html";
-        };
+export function initApp() {
+    // Only initialize if we're on the index page
+    if (window.location.pathname !== '/index') {
+        return;
     }
+
+    newDocButton.addEventListener("click", function () {
+        createNewDoc();
+    });
+
+    // Set up autosave with debouncing
+    let saveTimeout;
+    function setupAutosave() {
+        // Use event delegation since elements are dynamically created
+        document.addEventListener("input", function(e) {
+            if (e.target.id === "docTitle" || e.target.id === "docContent") {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    saveCurrentDoc();
+                }, 500); // Reduced delay for more responsive updates
+            }
+        });
+    }
+
+    renderDocList();
+    renderDocInputs("blank");
+    setupAutosave();
 }
-if (authButton) updateAuthButton();
-window.addEventListener("storage", updateAuthButton);
