@@ -1,16 +1,16 @@
 async function processDocument() {
-    // Get text and convert bold to brackets
+    // get text and convert bold to brackets
     let text = document.getElementById("docContent").innerHTML
         .replaceAll("<b>", "{")
         .replaceAll("</b>", "}");
     
-    // Extract prompts into simple array
+    // extract prompts into array
     const prompts = [];
     const matches = text.match(/\{([^}]+)\}/g);
     
     if (matches) {
         matches.forEach(match => {
-            prompts.push(match.slice(1, -1)); // Remove { and }
+            prompts.push(match.slice(1, -1)); // remove { and }
         });
     }
     
@@ -20,7 +20,7 @@ async function processDocument() {
     }
     
     try {
-        // Send array to Python
+        // send array to Python
         const response = await fetch('/api/process', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -29,7 +29,7 @@ async function processDocument() {
         
         const data = await response.json();
         
-        // Replace prompts with results
+        // replace prompts with results
         let updatedText = text;
         for (let i = 0; i < prompts.length; i++) {
             const originalPrompt = `{${prompts[i]}}`;
@@ -37,7 +37,7 @@ async function processDocument() {
             updatedText = updatedText.replace(originalPrompt, result);
         }
         
-        // Update document
+        // update document
         document.getElementById("docContent").innerHTML = updatedText;
         
     } catch (error) {
