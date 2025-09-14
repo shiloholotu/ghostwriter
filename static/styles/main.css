@@ -121,6 +121,14 @@ body{
     border:2px solid var(--pretty-red);
 }
 
+#saveTxtButton:hover{
+    border:2px solid var(--pretty-yellow);
+}
+
+#statsButton:hover{
+    border:2px solid var(--pretty-blue);
+}
+
 #docTitle{
     outline: none;
     font-family: "dm serif text";
@@ -155,4 +163,33 @@ body{
 .signoutButton:hover {
     background: rgb(245, 73, 73) !important; /* 50% red */
     color: #fff !important;
+}
+
+/* Rainbow animation for New Document button */
+#newDocButton {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+#newDocButton::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1;
+    background: linear-gradient(270deg, #ff0000, #ff9900, #ffee00, #33ff00, #00ffee, #3300ff, #ff00cc, #ff0000);
+    background-size: 1400% 1400%;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 10px;
+    animation: rainbowRoll 2s linear infinite;
+}
+
+#newDocButton:hover::before {
+    opacity: 1;
+}
+
+@keyframes rainbowRoll {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
 }
