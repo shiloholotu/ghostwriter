@@ -1,4 +1,3 @@
-// populate side bar with docs
 const docButtonContainer = document.getElementById("docButtons");
 function renderDocList(){
     const docList = listDocs();
