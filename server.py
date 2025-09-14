@@ -4,11 +4,11 @@ from claude import *
 from wolfram import *
 app = Flask(__name__)
 
-claude_client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY', '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'))
-wolfram_api_key = os.getenv('WOLFRAM_API_KEY', '25WVP3AK88')
+claude_client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
+wolfram_api_key = os.getenv('WOLFRAM_API_KEY')
 
 def handle_requests(prompt):
-    """Main processing function: Python -> Wolfram -> Claude"""
+    """Main processing function: Python then Wolfram then Claude"""
     result = ""
     try:
         result = eval(prompt)
