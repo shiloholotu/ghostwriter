@@ -47,12 +47,12 @@ function renderDocInputs(id){
         const cur = loadDoc(id);
         html = `
         
-            <input id="docTitle" type="text" value="${cur.name}">
+            <input id="docTitle" type="text" value="${cur.name}" oninput="updateTitleSave()">
             <div style="width:100%;display:flex;margin-bottom:20px;">
                 <button class="editButton"><img src="static/assets/flash.svg">Fill in the blanks</button>
                 <button id="deleteButton" class="editButton" style="margin-left:10px" onclick="deleteCurrentDoc()"><img src="static/assets/trash.svg">Delete document</button>
             </div>
-            <div id="docContent" contenteditable="true" id="textbox">
+            <div id="docContent" contenteditable="true" id="textbox"  oninput="updateTitleSave()">
                 ${cur.content}
             </div>
         `
@@ -72,7 +72,18 @@ function saveCurrentDoc(){
 }
 
 function openDoc(id){
-    saveCurrentDoc();
+    if(id == "blank"){
+        
+
+        const docList = listDocs();
+
+        if(docList.length != 0){
+            docList.sort((a, b) => b[1].timestamp - a[1].timestamp);
+            id = docList[0][0];
+        }
+        else currentDoc = "";
+    }
+    else saveCurrentDoc();
     renderDocInputs(id);
     renderDocList();
 }
@@ -85,6 +96,22 @@ function deleteCurrentDoc(){
 function createNewDoc(){
     const id = newDoc();
     openDoc(id);
+}
+
+// autosaving
+
+
+let nextTitleSave = 0;
+setInterval(function(){
+    if(Date.now() > nextTitleSave && nextTitleSave != 0){
+        nextTitleSave = 0;
+        saveCurrentDoc();
+        renderDocList();
+    }
+}, 5000)
+
+function updateTitleSave(){
+    nextTitleSave = Date.now() + 1000;
 }
 
 
@@ -138,3 +165,26 @@ if (statsButton && statsOverlay && statsContent && closeStatsButton) {
         if (e.target === statsOverlay) statsOverlay.style.display = "none";
     };
 }
+
+// Auth button logic (bottom of sidebar)
+const authButton = document.getElementById("authButton");
+function getUserEmail() {
+    return localStorage.getItem("userEmail");
+}
+function updateAuthButton() {
+    const email = getUserEmail();
+    if (email) {
+        authButton.textContent = email;
+        authButton.disabled = true;
+        authButton.classList.add("signed-in");
+    } else {
+        authButton.textContent = "Sign In";
+        authButton.disabled = false;
+        authButton.classList.remove("signed-in");
+        authButton.onclick = function() {
+            window.location.href = "login.html";
+        };
+    }
+}
+if (authButton) updateAuthButton();
+window.addEventListener("storage", updateAuthButton);
