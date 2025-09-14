@@ -7,23 +7,25 @@ from firebase_config import initialize_firebase, create_user, verify_id_token, g
 app = Flask(__name__)
 
 def handle_requests(prompt):
-    """Main processing function: Python then Wolfram then Claude"""
     result = ""
     try:
         result = eval(prompt)
     except Exception as e:
         print(f"Python eval failed. Error: {e}")
         
-        wolf_result = request_wolf(prompt)
-        if wolf_result is not None:
-            result = wolf_result
-        else:
-            claude_result = prompt_claude(prompt)
-            if claude_result is not None:
-                result = claude_result
+        try:
+            wolf_result = request_wolf(prompt)
+            if wolf_result is not None:
+                result = wolf_result
+            else:
+                claude_result = prompt_claude(prompt)
+                if claude_result is not None:
+                    result = claude_result
+        except Exception as e:
+            print(f"Error in fallback processing: {e}")
+            result = f"Error: Could not process '{prompt}'"
+    
     return result if result else f"Error: Could not process '{prompt}'"
-
-    return result
 
 @app.route("/index")
 def index():
@@ -163,7 +165,7 @@ def process():
     results = []
     
     for prompt in prompts:
-        result = handle_requests(prompt)  # Your function
+        result = handle_requests(prompt)
         results.append(result)
     
     return jsonify({'results': results})

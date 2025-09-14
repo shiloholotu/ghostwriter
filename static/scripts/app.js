@@ -1,3 +1,5 @@
+import {processDocument} from './processing.js';
+
 // populate side bar with docs
 let currentDoc = "";
 const docButtonContainer = document.getElementById("docButtons");
@@ -49,8 +51,9 @@ function renderDocInputs(id){
         
             <input id="docTitle" type="text" value="${cur.name}">
             <div style="width:100%;display:flex;margin-bottom:20px;">
-                <button class="editButton"><img src="static/assets/flash.svg">Fill in the blanks</button>
+                <button class="editButton" onclick="processDocument()"><img src="static/assets/flash.svg">Fill in the blanks</button>
                 <button id="deleteButton" class="editButton" style="margin-left:10px" onclick="deleteCurrentDoc()"><img src="static/assets/trash.svg">Delete document</button>
+                
             </div>
             <div id="docContent" contenteditable="true" id="textbox">
                 ${cur.content}

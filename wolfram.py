@@ -7,25 +7,25 @@ load_dotenv()
 
 def request_wolf(prompt):
     try:
-        appid = os.getenv('WA_APPID')
+        appid = os.getenv('appid')
         query = urllib.parse.quote_plus(prompt)
-        query_url = f"http://api.wolframalpha.com/v2/query?" \
-             f"appid={appid}" \
+        query_url = f"http://api.wolframalpha.com/v2/query?appid={appid}" \
              f"&input={query}" \
              f"&format=plaintext" \
              f"&output=json"
-        r = requests.get(query_url).json()
+        r = requests.get(query_url, timeout=10)
+        data = r.json()
         
-        if r["queryresult"]["success"] == True:
-            plaintext = r["queryresult"]["pods"][1]["subpods"][0]["plaintext"]
-            return plaintext
-    except requests.exceptions.Timeout:
-        print("The request timed out.")
-    except requests.exceptions.ConnectionError:
-        print("Failed to connect to the server.")
-    except requests.exceptions.HTTPError as e:
-        print("HTTP error occurred:", e)
-    except requests.exceptions.RequestException as e:
-        print("Some other request error occurred:", e)
-    
-    return None
+        # DEBUG: Print what we actually get
+        print("Wolfram response:", data)
+        
+        if data.get("queryresult", {}).get("success"):
+            pods = data["queryresult"].get("pods", [])
+            if len(pods) > 1 and pods[1].get("subpods"):
+                plaintext = pods[1]["subpods"][0].get("plaintext")
+                return plaintext
+        
+        return None
+    except Exception as e:
+        print(f"Wolfram error: {e}")
+        return None

@@ -9,7 +9,7 @@ def initialize_firebase():
         # Initialize with service account key
         if not firebase_admin._apps:
             # Replace with your actual service account key file path
-            cred = credentials.Certificate("ghostwriter/serviceAccountKey.json")
+            cred = credentials.Certificate("serviceAccountKey.json")
             firebase_admin.initialize_app(cred)
         return True
     except Exception as e:
