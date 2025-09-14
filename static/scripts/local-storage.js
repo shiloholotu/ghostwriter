@@ -2,11 +2,8 @@ if(localStorage["docs"] == null){
     localStorage["docs"] = JSON.stringify({});
 }
 
-// creating new documents
 
 function newDoc(){
-
-    // random id key for documents
     const abc123 = "abcdefghijklmnopqrstuvwxyz0123456789";
     let key = "";
     for(let i = 0; i < 10; i++){
@@ -27,7 +24,6 @@ function newDoc(){
     return key;
 }
 
-// list doc names and ids
 
 function listDocs(){
     const docs = JSON.parse(localStorage["docs"]);
@@ -39,7 +35,7 @@ function listDocs(){
 
 
 
-// saving documents
+
 
 function saveDoc(id, name, content){
     const doc = {
@@ -57,14 +53,11 @@ function saveDoc(id, name, content){
 
 
 
-// loading documents
-
 function loadDoc(id){
     const docs = JSON.parse(localStorage["docs"]);
     return docs[id];
 }
 
-// deleting documents
 
 function delDoc(id){
     const docs = JSON.parse(localStorage["docs"]);
