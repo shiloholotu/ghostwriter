@@ -150,3 +150,9 @@ body{
     opacity: .3;
     margin: auto;
 }
+
+/* Sign out button hold red on hover */
+.signoutButton:hover {
+    background: rgb(245, 73, 73) !important; /* 50% red */
+    color: #fff !important;
+}

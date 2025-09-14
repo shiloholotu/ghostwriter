@@ -165,3 +165,26 @@ if (statsButton && statsOverlay && statsContent && closeStatsButton) {
         if (e.target === statsOverlay) statsOverlay.style.display = "none";
     };
 }
+
+// Auth button logic (bottom of sidebar)
+const authButton = document.getElementById("authButton");
+function getUserEmail() {
+    return localStorage.getItem("userEmail");
+}
+function updateAuthButton() {
+    const email = getUserEmail();
+    if (email) {
+        authButton.textContent = email;
+        authButton.disabled = true;
+        authButton.classList.add("signed-in");
+    } else {
+        authButton.textContent = "Sign In";
+        authButton.disabled = false;
+        authButton.classList.remove("signed-in");
+        authButton.onclick = function() {
+            window.location.href = "login.html";
+        };
+    }
+}
+if (authButton) updateAuthButton();
+window.addEventListener("storage", updateAuthButton);
