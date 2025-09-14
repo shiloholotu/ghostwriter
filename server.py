@@ -101,23 +101,63 @@ def login():
         if user_result['success']:
             password_result = verify_password(email, password)
             
-            if password_result['success']:
+            # Check if password verification was successful
+            if 'error' not in password_result and 'idToken' in password_result:
                 print(f"User login successful: {email}")
                 
                 return jsonify({
                     'success': True,
                     'message': 'Login successful',
                     'user': {
-                        'uid': user_result['uid'],
-                        'email': user_result['email'],
+                        'uid': password_result['uid'],
+                        'email': email,
                         'fullName': user_result['display_name']
-                    }
+                    },
+                    'idToken': password_result['idToken']
                 }), 200
             else:
-                return jsonify({
-                    'success': False,
-                    'message': 'Invalid email or password'
-                }), 401
+                # Handle specific Firebase auth errors
+                if 'error' in password_result:
+                    error_info = password_result['error']
+                    if 'error' in error_info:
+                        error_message = error_info['error'].get('message', 'Authentication failed')
+                        
+                        # Map Firebase error codes to user-friendly messages
+                        if 'INVALID_PASSWORD' in error_message:
+                            return jsonify({
+                                'success': False,
+                                'message': 'Invalid password'
+                            }), 401
+                        elif 'EMAIL_NOT_FOUND' in error_message:
+                            return jsonify({
+                                'success': False,
+                                'message': 'Email not found'
+                            }), 401
+                        elif 'USER_DISABLED' in error_message:
+                            return jsonify({
+                                'success': False,
+                                'message': 'Account has been disabled'
+                            }), 401
+                        elif 'TOO_MANY_ATTEMPTS_TRY_LATER' in error_message:
+                            return jsonify({
+                                'success': False,
+                                'message': 'Too many failed attempts. Try again later'
+                            }), 429
+                        else:
+                            return jsonify({
+                                'success': False,
+                                'message': f'Authentication error: {error_message}'
+                            }), 401
+                    else:
+                        return jsonify({
+                            'success': False,
+                            'message': 'Authentication failed'
+                        }), 401
+                else:
+                    return jsonify({
+                        'success': False,
+                        'message': 'Invalid email or password'
+                    }), 401
         else:
             return jsonify({
                 'success': False,

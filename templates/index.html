@@ -1,27 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-
         <meta charset="UTF-8">
-
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1"/>
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-
-        <!-- google fonts -->
         <link rel="preconnect" href="https://fonts.gstatic.com">
 		<link href="https://fonts.googleapis.com/css?family=Poppins:400,600,800" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text&display=swap" rel="stylesheet">
-
-        <!-- our stylesheet-->
         <link rel="stylesheet" href="static/styles/main.css">
-
         <title>Web App Template</title>
-
     </head>
-
-    <body>
+    <body style="visibility: hidden;">
         <div id="sideBar">
-            <button id="newDocButton" onclick="createNewDoc()">
+            <button id="newDocButton">
                 <img src="static/assets/pencil.svg">
                 New Document
             </button>
@@ -29,12 +20,12 @@
             <div style="width:100%; margin:auto; height:2px; background:var(--dark-transp-blue);margin-bottom:10px"></div>
 
             <div id="docButtons"></div>
-            <button>Sign out</button>
+            <button id="signOutButton">Sign out</button>
         </div>
         <div id="docContainer">
             <input id="docTitle" type="text" value="The Story of Abraham Lincoln">
             <div style="width:100%;display:flex;margin-bottom:20px;">
-                <button class="editButton"class = "editButton" onclick="processDocument()"><img src="static/assets/flash.svg">Fill in the blanks</button>
+                <button class="editButton" onclick="processDocument()"><img src="static/assets/flash.svg">Fill in the blanks</button>
                 <button id="deleteButton" class="editButton" style="margin-left:10px"><img src="static/assets/trash.svg">Delete document</button>
                 <button id="saveTxtButton" class="editButton" style="margin-left:10px"><img src="static/assets/floppy-disk.svg">Save as .txt</button>
                 <button id="statsButton" class="editButton" style="margin-left:10px"><img src="static/assets/info-circle.svg">Stats</button>
@@ -51,11 +42,21 @@
                 </div>
             </div>
         </div>
-
-        <script src="static/scripts/local-storage.js"></script>
-        <script src="static/scripts/app.js"></script>
-        <script src="static/scripts/processing.js"></script>
-
+        <script type="module">
+        // Immediate auth check to prevent flash
+        const authToken = localStorage.getItem('authToken');
+        const userData = localStorage.getItem('userData');
+        if (!authToken && !userData) {
+            window.location.href = '/';
+        } else {
+            // Show page only if user is logged in
+            document.body.style.visibility = 'visible';
+        }
+    </script>
+    <script type="module" src="static/scripts/client.js"></script>
+    <script type="module" src="static/scripts/utils.js"></script>
+    <script type="module" src="static/scripts/app.js"></script>
+    <script type="module" src="static/scripts/authentification.js"></script>
+    <script type="module" src="static/scripts/documents.js"></script>
     </body>
-
 </html>

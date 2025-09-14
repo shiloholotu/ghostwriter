@@ -1,6 +1,9 @@
 import firebase_admin
 from firebase_admin import credentials, auth
 import os
+from dotenv import load_dotenv
+import requests
+load_dotenv()
 
 # Initialize Firebase Admin SDK
 def initialize_firebase():
@@ -69,20 +72,22 @@ def get_user_by_email(email):
         return {'success': False, 'message': f'Error: {str(e)}'}
 
 def verify_password(email, password):
-    """Verify user password - Firebase Admin SDK doesn't support password verification directly"""
-    # Note: Firebase Admin SDK cannot verify passwords directly
-    # This is a security feature - passwords should only be verified on the client side
-    # For a real implementation, you would:
-    # 1. Use Firebase Auth on the client side to sign in
-    # 2. Send the ID token to the server for verification
-    # 3. Or use a custom authentication system with hashed passwords
+    API_KEY = os.getenv('FIREBASE_API_KEY')
+    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={API_KEY}"
+    payload = {
+        "email": email,
+        "password": password,
+        "returnSecureToken": True
+    }
+    res = requests.post(url, json=payload)
     
-    # For demonstration purposes, we'll simulate password verification
-    # In a real app, this would be handled differently
-    user_result = get_user_by_email(email)
-    if user_result['success']:
-        # In a real implementation, you would check against stored password hash
-        # For now, we'll just check if user exists (not secure)
-        return {'success': True, 'message': 'Password verified'}
+    if res.status_code == 200:
+        data = res.json()
+        # You get idToken, refreshToken, and localId (Firebase UID)
+        return {
+            "idToken": data["idToken"],         # JWT to authorize requests
+            "refreshToken": data["refreshToken"],
+            "uid": data["localId"]
+        }
     else:
-        return {'success': False, 'message': 'Invalid credentials'}
+        return {"error": res.json()}
