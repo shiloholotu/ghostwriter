@@ -34,7 +34,10 @@ body{
     width: 250px;
     background: var(--background);
     height: 100vh;
-    padding:15px;
+    padding: 15px 15px 10px 15px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
 }
 
 #sideBar button{
@@ -75,11 +78,21 @@ body{
 #docContainer{
     padding:30px;
     width: -webkit-fill-available;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
 }
 
 #docContent{
     outline:none;
     width: 100%;
+    flex: 1;
+    min-height: 0;
+    resize: none;
+    font-size: 16px;
+    line-height: 1.6;
+    padding: 20px 0;
 }
 
 #docContent b, #docContent strong {
@@ -105,6 +118,7 @@ body{
     opacity: .3;
     transition: .25s;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .editButton img{
@@ -131,6 +145,7 @@ body{
     border: none;
     width: 100%;
     margin-bottom:15px;
+    flex-shrink: 0;
 }
 
 #docPlaceholder img{
@@ -184,4 +199,54 @@ body{
 @keyframes rainbowRoll {
     0% { background-position: 0% 50%; }
     100% { background-position: 100% 50%; }
+}
+
+/* Document buttons container */
+#docButtons {
+    flex: 0 0 auto;
+    overflow: visible;
+}
+
+/* Profile section */
+#profileSection {
+    display: flex;
+    align-items: center;
+    padding: 15px 10px;
+    margin-bottom: 10px;
+    background: var(--lighter-gray);
+    border-radius: 10px;
+}
+
+#userAvatar {
+    width: 35px;
+    height: 35px;
+    background: var(--pretty-blue);
+    border-radius: 50%;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--background);
+}
+
+#userName {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--font-color);
+    opacity: 0.9;
+}
+
+/* Red sign out button */
+.signOutButtonRed {
+    color: var(--pretty-red) !important;
+    background: transparent !important;
+    border: 1px solid var(--pretty-red) !important;
+    transition: all 0.25s;
+}
+
+.signOutButtonRed:hover {
+    background: var(--pretty-red) !important;
+    color: #fff !important;
 }

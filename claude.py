@@ -1,14 +1,24 @@
 import os
 import anthropic
+from dotenv import load_dotenv
 
-api_key = os.getenv('claude-api', '')
+load_dotenv()
 
-client = anthropic.Anthropic(
-    # defaults to os.environ.get("ANTHROPIC_API_KEY")
-    api_key=api_key,
-)
+# Try multiple possible environment variable names for the API key
+api_key = os.getenv('ANTHROPIC_API_KEY') or os.getenv('claude-api') or os.getenv('CLAUDE_API_KEY')
+
+if not api_key:
+    print("Warning: No Claude API key found. Claude functionality will be disabled.")
+    client = None
+else:
+    client = anthropic.Anthropic(api_key=api_key)
 
 def prompt_claude(prompt, max_tokens=1024, model="claude-sonnet-4-0"):
+    # Return None if no client is available (no API key)
+    if client is None:
+        print("Claude API key not configured, skipping Claude request")
+        return None
+        
     if model not in ("claude-opus-4-1", "claude-opus-4-0", "claude-sonnet-4-0"):
         model = "claude-sonnet-4-0"
     try:
@@ -25,7 +35,6 @@ def prompt_claude(prompt, max_tokens=1024, model="claude-sonnet-4-0"):
 
         count = client.messages.count_tokens(
             model=model,
-            max_tokens=max_tokens,
             messages=[
                 {
                     "role": "user",

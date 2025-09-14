@@ -37,10 +37,21 @@ function handleSignupSubmit(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            localStorage.setItem('userData', JSON.stringify(data.user));
-            localStorage.setItem('authToken', 'signup_' + Date.now());
+            // Clear any existing auth data first
+            localStorage.removeItem('userData');
+            localStorage.removeItem('authToken');
+            sessionStorage.clear();
+            
+            // Store user data with idToken if available
+            const userDataWithToken = {
+                ...data.user,
+                idToken: data.idToken || null
+            };
+            localStorage.setItem('userData', JSON.stringify(userDataWithToken));
+            localStorage.setItem('authToken', data.idToken || 'signup_' + Date.now());
             
             console.log('User signed up successfully:', data.user.email);
+            console.log('Stored signup auth data:', userDataWithToken);
             window.location.href = '/index';
         } else {
             alert('Signup failed: ' + data.message);
@@ -79,10 +90,21 @@ function handleLoginSubmit(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            localStorage.setItem('userData', JSON.stringify(data.user));
-            localStorage.setItem('authToken', 'login_' + Date.now());
+            // Clear any existing auth data first
+            localStorage.removeItem('userData');
+            localStorage.removeItem('authToken');
+            sessionStorage.clear();
+            
+            // Store fresh user data with idToken
+            const userDataWithToken = {
+                ...data.user,
+                idToken: data.idToken
+            };
+            localStorage.setItem('userData', JSON.stringify(userDataWithToken));
+            localStorage.setItem('authToken', data.idToken);
             
             console.log('User logged in successfully:', data.user.email);
+            console.log('Stored auth data:', userDataWithToken);
             
             window.location.href = '/index';
         } else {
@@ -96,13 +118,15 @@ function handleLoginSubmit(event) {
 }
 
 function handleSignOut() {
+    // Clear all authentication data
     localStorage.removeItem('userData');
     localStorage.removeItem('authToken');
     localStorage.removeItem('session');
+    sessionStorage.clear(); // Clear session storage too
     
     document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     
-    console.log('User signed out successfully');
+    console.log('User signed out successfully - all auth data cleared');
     
     window.location.href = '/';
 }
