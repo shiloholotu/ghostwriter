@@ -299,6 +299,17 @@ async function fillInTheBlanks() {
                 try {
                     // Send to handle_requests function via API
                     const response = await fetch(`/data?prompt=${encodeURIComponent(highlightedText)}`);
+                    
+                    // Check if the response is ok (status 200-299)
+                    if (!response.ok) {
+                        // Handle HTTP error responses
+                        const errorData = await response.json();
+                        console.error('HTTP Error from server:', errorData);
+                        const errorNode = document.createTextNode(`[Error: ${errorData.error || 'Server error'}]`);
+                        element.parentNode.replaceChild(errorNode, element);
+                        continue;
+                    }
+                    
                     const data = await response.json();
                     
                     // Check if the response contains an error
@@ -487,15 +498,23 @@ function createHighlightIndicator() {
 }
 
 function showHighlightIndicator() {
+    // If indicator is already being hidden, clear the timeout and show it again
+    if (highlightIndicator && highlightIndicator.hideTimeout) {
+        clearTimeout(highlightIndicator.hideTimeout);
+        highlightIndicator.hideTimeout = null;
+        highlightIndicator.style.transform = 'translateX(0)';
+        return;
+    }
+    
     if (!highlightIndicator) {
         highlightIndicator = createHighlightIndicator();
     }
 }
 
 function hideHighlightIndicator() {
-    if (highlightIndicator) {
+    if (highlightIndicator && !highlightIndicator.hideTimeout) {
         highlightIndicator.style.transform = 'translateX(100%)';
-        setTimeout(() => {
+        highlightIndicator.hideTimeout = setTimeout(() => {
             if (highlightIndicator) {
                 highlightIndicator.remove();
                 highlightIndicator = null;
@@ -507,33 +526,21 @@ function hideHighlightIndicator() {
 function setupHighlightingMode() {
     let currentHighlightElement = null;
     
-    document.addEventListener('keydown', function(e) {
-        // Check for Ctrl+B
-        if (e.ctrlKey && e.key.toLowerCase() === 'b') {
-            e.preventDefault();
+    // Function to exit highlighting mode
+    function exitHighlightingMode(preserveCursor = false) {
+        if (isHighlightingMode) {
+            isHighlightingMode = false;
+            hideHighlightIndicator();
+            // Reset cursor
+            document.body.style.cursor = 'default';
+            const docContent = document.getElementById('docContent');
+            if (docContent) {
+                docContent.style.cursor = 'text';
+            }
+            currentHighlightElement = null;
             
-            isHighlightingMode = !isHighlightingMode;
-            
-            if (isHighlightingMode) {
-                showHighlightIndicator();
-                // Change cursor to indicate highlighting mode
-                document.body.style.cursor = 'text';
-                const docContent = document.getElementById('docContent');
-                if (docContent) {
-                    docContent.style.cursor = 'text';
-                }
-                // Don't create highlight element immediately - wait for user to type
-            } else {
-                hideHighlightIndicator();
-                // Reset cursor
-                document.body.style.cursor = 'default';
-                const docContent = document.getElementById('docContent');
-                if (docContent) {
-                    docContent.style.cursor = 'text';
-                }
-                currentHighlightElement = null;
-                
-                // Move cursor outside any highlight elements when exiting mode
+            // Only move cursor if we're actually inside a highlight element and preserveCursor is false
+            if (!preserveCursor) {
                 const selection = window.getSelection();
                 if (selection.rangeCount > 0) {
                     const range = selection.getRangeAt(0);
@@ -569,131 +576,262 @@ function setupHighlightingMode() {
                 }
             }
         }
-    });
+    }
     
-    // Handle typing in highlighting mode
-    document.addEventListener('input', function(e) {
-        if (e.target.id === 'docContent') {
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                const container = range.commonAncestorContainer;
+    document.addEventListener('keydown', function(e) {
+        // Check for Ctrl+B
+        if (e.ctrlKey && e.key.toLowerCase() === 'b') {
+            e.preventDefault();
+            
+            if (isHighlightingMode) {
+                // Turning OFF highlight mode
+                isHighlightingMode = false;
+                hideHighlightIndicator();
+                // Reset cursor
+                document.body.style.cursor = 'default';
+                const docContent = document.getElementById('docContent');
+                if (docContent) {
+                    docContent.style.cursor = 'text';
+                }
+                currentHighlightElement = null;
+                // Don't move cursor when manually toggling off with Ctrl+B
+            } else {
+                // Turning ON highlight mode
+                // Save current cursor position before any changes
+                const currentSelection = window.getSelection();
+                let savedRange = null;
+                if (currentSelection.rangeCount > 0) {
+                    savedRange = currentSelection.getRangeAt(0).cloneRange();
+                }
                 
-                // Get the last typed character
-                const textNode = container.nodeType === Node.TEXT_NODE ? container : container.childNodes[container.childNodes.length - 1];
-                if (textNode && textNode.nodeType === Node.TEXT_NODE && textNode.textContent) {
-                    const text = textNode.textContent;
-                    const lastChar = text[text.length - 1];
-                    
-                    // Check if space was typed and we're inside a highlight element
-                    if (lastChar === ' ') {
-                        let parentElement = container.nodeType === Node.TEXT_NODE ? container.parentNode : container;
-                        let isInsideHighlight = false;
-                        let highlightElement = null;
-                        
-                        while (parentElement && parentElement.id !== 'docContent') {
-                            if (parentElement.tagName === 'STRONG') {
-                                isInsideHighlight = true;
-                                highlightElement = parentElement;
-                                break;
-                            }
-                            parentElement = parentElement.parentNode;
-                        }
-                        
-                        // If space was typed inside a highlight, move cursor outside
-                        if (isInsideHighlight && highlightElement) {
-                            // Remove the space from the highlight element
-                            textNode.textContent = text.slice(0, -1);
-                            
-                            // Create a text node with the space after the highlight element
-                            const spaceNode = document.createTextNode(' ');
-                            highlightElement.parentNode.insertBefore(spaceNode, highlightElement.nextSibling);
-                            
-                            // Move cursor after the space
-                            const newRange = document.createRange();
-                            newRange.setStart(spaceNode, 1);
-                            newRange.setEnd(spaceNode, 1);
+                isHighlightingMode = true;
+                showHighlightIndicator();
+                // Change cursor to indicate highlighting mode
+                document.body.style.cursor = 'text';
+                const docContent = document.getElementById('docContent');
+                if (docContent) {
+                    docContent.style.cursor = 'text';
+                }
+                
+                // Restore cursor position after activating highlight mode
+                if (savedRange) {
+                    setTimeout(() => {
+                        try {
+                            const selection = window.getSelection();
                             selection.removeAllRanges();
-                            selection.addRange(newRange);
-                            
-                            return; // Exit early to prevent further processing
+                            selection.addRange(savedRange);
+                        } catch (error) {
+                            console.log('Could not restore cursor position:', error);
                         }
-                    }
-                    
-                    // Handle highlighting mode
-                    if (isHighlightingMode) {
-                        // Check if we're not already inside a highlight element
-                        let parentElement = container.nodeType === Node.TEXT_NODE ? container.parentNode : container;
-                        let isInsideHighlight = false;
-                        
-                        while (parentElement && parentElement.id !== 'docContent') {
-                            if (parentElement.tagName === 'STRONG') {
-                                isInsideHighlight = true;
-                                break;
-                            }
-                            parentElement = parentElement.parentNode;
-                        }
-                        
-                        // If not inside a highlight, create one
-                        if (!isInsideHighlight) {
-                            // Create highlight element with the last character
-                            const highlightElement = document.createElement('strong');
-                            highlightElement.style.cssText = `
-                                background-color: #8cdf82;
-                                padding: 3px 6px;
-                                border-radius: 5px;
-                                font-weight: 600;
-                                color: #161b22;
-                            `;
-                            highlightElement.textContent = lastChar;
-                            
-                            // Remove the last character from the text node
-                            textNode.textContent = text.slice(0, -1);
-                            
-                            // Insert the highlight element after the text node
-                            if (textNode.parentNode) {
-                                textNode.parentNode.insertBefore(highlightElement, textNode.nextSibling);
-                                
-                                // Move cursor to end of highlight element
-                                const newRange = document.createRange();
-                                newRange.setStart(highlightElement, highlightElement.childNodes.length);
-                                newRange.setEnd(highlightElement, highlightElement.childNodes.length);
-                                selection.removeAllRanges();
-                                selection.addRange(newRange);
-                            }
-                        }
-                    } else {
-                        // If highlighting mode is OFF, ensure we're not inside a highlight element
-                        let parentElement = container.nodeType === Node.TEXT_NODE ? container.parentNode : container;
-                        let highlightElement = null;
-                        
-                        while (parentElement && parentElement.id !== 'docContent') {
-                            if (parentElement.tagName === 'STRONG') {
-                                highlightElement = parentElement;
-                                break;
-                            }
-                            parentElement = parentElement.parentNode;
-                        }
-                        
-                        // If we're typing inside a highlight but mode is off, move outside
-                        if (highlightElement) {
-                            // Remove the last character from inside the highlight
-                            textNode.textContent = text.slice(0, -1);
-                            
-                            // Create a text node with the character after the highlight
-                            const newTextNode = document.createTextNode(lastChar);
-                            highlightElement.parentNode.insertBefore(newTextNode, highlightElement.nextSibling);
-                            
-                            // Move cursor to end of the new text node
-                            const newRange = document.createRange();
-                            newRange.setStart(newTextNode, newTextNode.textContent.length);
-                            newRange.setEnd(newTextNode, newTextNode.textContent.length);
-                            selection.removeAllRanges();
-                            selection.addRange(newRange);
-                        }
-                    }
+                    }, 0);
                 }
             }
+        }
+    });
+    
+    // Add click event listener to exit highlighting mode when clicking outside highlighted text
+    document.addEventListener('click', function(e) {
+        if (isHighlightingMode) {
+            let clickedElement = e.target;
+            let isInsideHighlight = false;
+            
+            // Check if the clicked element is inside a highlight element
+            while (clickedElement && clickedElement.id !== 'docContent') {
+                if (clickedElement.tagName === 'STRONG') {
+                    isInsideHighlight = true;
+                    break;
+                }
+                clickedElement = clickedElement.parentNode;
+            }
+            
+            // If clicked outside of highlighted text (but still inside docContent), exit highlighting mode
+            if (!isInsideHighlight && e.target.closest('#docContent')) {
+                exitHighlightingMode();
+            }
+        }
+    });
+    
+    // Handle typing in highlighting mode using keydown for better control
+    document.addEventListener('keydown', function(e) {
+        if (e.target.id !== 'docContent') return;
+        
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+        
+        const range = selection.getRangeAt(0);
+        const container = range.commonAncestorContainer;
+        
+        // Check if we're inside a highlight element
+        let parentElement = container.nodeType === Node.TEXT_NODE ? container.parentNode : container;
+        let isInsideHighlight = false;
+        let highlightElement = null;
+        
+        while (parentElement && parentElement.id !== 'docContent') {
+            if (parentElement.tagName === 'STRONG') {
+                isInsideHighlight = true;
+                highlightElement = parentElement;
+                break;
+            }
+            parentElement = parentElement.parentNode;
+        }
+        
+        // Handle space key - include it in highlight if in highlight mode
+        if (e.key === ' ') {
+            if (isHighlightingMode && isInsideHighlight && highlightElement) {
+                // Let the space be typed normally inside the highlight
+                return;
+            } else if (isHighlightingMode && !isInsideHighlight) {
+                // Check if cursor is right after a highlight element to extend it
+                e.preventDefault();
+                
+                let adjacentHighlight = null;
+                const startContainer = range.startContainer;
+                const startOffset = range.startOffset;
+                
+                // Check if we're at the start of a text node that follows a highlight
+                if (startContainer.nodeType === Node.TEXT_NODE && startOffset === 0) {
+                    const prevSibling = startContainer.previousSibling;
+                    if (prevSibling && prevSibling.tagName === 'STRONG') {
+                        adjacentHighlight = prevSibling;
+                    }
+                }
+                // Check if we're right after a highlight element
+                else if (startContainer.nodeType === Node.ELEMENT_NODE) {
+                    const prevNode = startContainer.childNodes[startOffset - 1];
+                    if (prevNode && prevNode.tagName === 'STRONG') {
+                        adjacentHighlight = prevNode;
+                    }
+                }
+                
+                if (adjacentHighlight) {
+                    // Extend the existing highlight with space
+                    adjacentHighlight.textContent += ' ';
+                    
+                    // Move cursor to end of the extended highlight
+                    const newRange = document.createRange();
+                    newRange.setStart(adjacentHighlight.firstChild, adjacentHighlight.textContent.length);
+                    newRange.setEnd(adjacentHighlight.firstChild, adjacentHighlight.textContent.length);
+                    selection.removeAllRanges();
+                    selection.addRange(newRange);
+                } else {
+                    // Create new highlight with just the space
+                    const newHighlightElement = document.createElement('strong');
+                    newHighlightElement.style.cssText = `
+                        background-color: #8cdf82;
+                        padding: 3px 6px;
+                        border-radius: 5px;
+                        font-weight: 600;
+                        color: #161b22;
+                    `;
+                    newHighlightElement.textContent = ' ';
+                    
+                    // Insert the highlight element at cursor position
+                    range.deleteContents();
+                    range.insertNode(newHighlightElement);
+                    
+                    // Move cursor to end of the new highlight element
+                    const newRange = document.createRange();
+                    newRange.setStart(newHighlightElement.firstChild, newHighlightElement.textContent.length);
+                    newRange.setEnd(newHighlightElement.firstChild, newHighlightElement.textContent.length);
+                    selection.removeAllRanges();
+                    selection.addRange(newRange);
+                }
+                return;
+            } else if (!isHighlightingMode && isInsideHighlight && highlightElement) {
+                // Exit highlight if not in highlighting mode
+                e.preventDefault();
+                
+                // Create a text node with space after the highlight element
+                const spaceNode = document.createTextNode(' ');
+                highlightElement.parentNode.insertBefore(spaceNode, highlightElement.nextSibling);
+                
+                // Move cursor after the space
+                const newRange = document.createRange();
+                newRange.setStart(spaceNode, 1);
+                newRange.setEnd(spaceNode, 1);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+                return;
+            }
+        }
+        
+        // Handle regular character typing in highlight mode
+        if (isHighlightingMode && e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+            // If not inside a highlight, check if we can extend an adjacent one
+            if (!isInsideHighlight) {
+                e.preventDefault();
+                
+                // Check if cursor is right after a highlight element
+                let adjacentHighlight = null;
+                const startContainer = range.startContainer;
+                const startOffset = range.startOffset;
+                
+                // Check if we're at the start of a text node that follows a highlight
+                if (startContainer.nodeType === Node.TEXT_NODE && startOffset === 0) {
+                    const prevSibling = startContainer.previousSibling;
+                    if (prevSibling && prevSibling.tagName === 'STRONG') {
+                        adjacentHighlight = prevSibling;
+                    }
+                }
+                // Check if we're right after a highlight element
+                else if (startContainer.nodeType === Node.ELEMENT_NODE) {
+                    const prevNode = startContainer.childNodes[startOffset - 1];
+                    if (prevNode && prevNode.tagName === 'STRONG') {
+                        adjacentHighlight = prevNode;
+                    }
+                }
+                
+                if (adjacentHighlight) {
+                    // Extend the existing highlight
+                    adjacentHighlight.textContent += e.key;
+                    
+                    // Move cursor to end of the extended highlight
+                    const newRange = document.createRange();
+                    newRange.setStart(adjacentHighlight.firstChild, adjacentHighlight.textContent.length);
+                    newRange.setEnd(adjacentHighlight.firstChild, adjacentHighlight.textContent.length);
+                    selection.removeAllRanges();
+                    selection.addRange(newRange);
+                } else {
+                    // Create new highlight element with the typed character
+                    const newHighlightElement = document.createElement('strong');
+                    newHighlightElement.style.cssText = `
+                        background-color: #8cdf82;
+                        padding: 3px 6px;
+                        border-radius: 5px;
+                        font-weight: 600;
+                        color: #161b22;
+                    `;
+                    newHighlightElement.textContent = e.key;
+                    
+                    // Insert the highlight element at cursor position
+                    range.deleteContents();
+                    range.insertNode(newHighlightElement);
+                    
+                    // Move cursor to end of the new highlight element
+                    const newRange = document.createRange();
+                    newRange.setStart(newHighlightElement.firstChild, newHighlightElement.textContent.length);
+                    newRange.setEnd(newHighlightElement.firstChild, newHighlightElement.textContent.length);
+                    selection.removeAllRanges();
+                    selection.addRange(newRange);
+                }
+            }
+            // If already inside a highlight, let the character be typed normally
+        }
+        
+        // Handle typing when highlight mode is OFF but we're inside a highlight
+        if (!isHighlightingMode && e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey && isInsideHighlight && highlightElement) {
+            e.preventDefault();
+            
+            // Create a text node with the character after the highlight element
+            const newTextNode = document.createTextNode(e.key);
+            highlightElement.parentNode.insertBefore(newTextNode, highlightElement.nextSibling);
+            
+            // Move cursor to end of the new text node
+            const newRange = document.createRange();
+            newRange.setStart(newTextNode, newTextNode.textContent.length);
+            newRange.setEnd(newTextNode, newTextNode.textContent.length);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
         }
     });
 }
@@ -738,11 +876,6 @@ export async function initApp() {
         createNewDoc();
     });
 
-    // Set up stats button event listener (always available)
-    const statsButton = document.getElementById("statsButton");
-    if (statsButton) {
-        statsButton.addEventListener("click", showDocumentStats);
-    }
     
     const closeStatsButton = document.getElementById("closeStatsButton");
     if (closeStatsButton) {

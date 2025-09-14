@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
-from waitress import serve
 from claude import *
 from wolfram import *
 import os
@@ -21,20 +20,24 @@ print("Server initialized with simple authentication")
 
 def handle_requests(prompt):
     if not prompt or not prompt.strip():
-        return jsonify({"error": "No prompt provided"}), 400
+        return {"error": "No prompt provided"}, 400
         
     result = ""
     try:
         # First try eval for mathematical expressions
         result = str(eval(prompt))
-        return jsonify({"result": result})
+        return {"result": result}, 200
     except (SyntaxError, NameError, ZeroDivisionError) as e:
         print("Eval failed, trying other methods:", e)
     
     # Try Wolfram Alpha
-    wolf_request = request_wolf(prompt)
-    if wolf_request is not None:
-        return jsonify({"result": wolf_request})
+    try:
+        wolf_request = request_wolf(prompt)
+        if wolf_request is not None:
+            return {"result": wolf_request}, 200
+    except Exception as e:
+        print(f"Wolfram Alpha error: {e}")
+        # Continue to Claude fallback
     
     # Try Claude as last resort
     claude_request = prompt_claude(prompt)
@@ -49,14 +52,14 @@ def handle_requests(prompt):
                 for block in claude_result:
                     if hasattr(block, 'text'):
                         text_content += block.text
-                return jsonify({"result": text_content})
+                return {"result": text_content}, 200
             else:
-                return jsonify({"result": str(claude_result)})
+                return {"result": str(claude_result)}, 200
         else:
-            return jsonify({"result": str(claude_request)})
+            return {"result": str(claude_request)}, 200
     
     # If all methods failed
-    return jsonify({"error": "Could not process the request"}), 400
+    return {"error": "Could not process the request"}, 400
 
 @app.route("/index")
 def index():
@@ -78,9 +81,9 @@ def get_data():
             return jsonify({"error": "No prompt provided"}), 400
         
         print(f"Processing prompt: {prompt}")
-        result = handle_requests(prompt)
-        print(f"Result: {result}")
-        return result
+        result_data, status_code = handle_requests(prompt)
+        print(f"Result: {result_data}")
+        return jsonify(result_data), status_code
     except Exception as e:
         print(f"Error in /data endpoint: {str(e)}")
         import traceback
