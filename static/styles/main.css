@@ -135,6 +135,14 @@ body{
     border:2px solid var(--pretty-red);
 }
 
+#saveTxtButton:hover{
+    border:2px solid var(--pretty-yellow);
+}
+
+#statsButton:hover{
+    border:2px solid var(--pretty-blue);
+}
+
 #docTitle{
     outline: none;
     font-family: "dm serif text";
