@@ -28,7 +28,7 @@ def prompt_claude(prompt, max_tokens=1024, model="claude-sonnet-4-0"):
             messages=[
                 {
                     "role": "user",
-                    "content": "If the prompt is requesting information or asking a question, provide the information without extra flavor text. If the user is asking for content generation, return it without extra flavor text.\nPrompt:\n" + prompt
+                    "content": "If the prompt is requesting information or asking a question, provide the information directly, in AS FEW WORDS AS POSSIBLE, without extra flavor text. If the user is asking for content generation, return it without extra flavor text.\nPrompt:\n" + prompt
                 }
             ]
         )

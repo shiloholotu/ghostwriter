@@ -1,4 +1,8 @@
 async function processDocument() {
+    document.getElementById("docContent").style["opacity"] = .5;
+    document.getElementById("docContent").style["pointer-events"] = "none";
+    document.getElementById("docContent").style["cursor"] = "not-allowed";
+
     // get text and convert bold to brackets
     let text = document.getElementById("docContent").innerHTML
         .replaceAll("<b>", "{")
@@ -39,6 +43,9 @@ async function processDocument() {
         
         // update document
         document.getElementById("docContent").innerHTML = updatedText;
+        document.getElementById("docContent").style["opacity"] = 1;
+        document.getElementById("docContent").style["pointer-events"] = "";
+        document.getElementById("docContent").style["cursor"] = "";
         
     } catch (error) {
         alert("Error: " + error.message);

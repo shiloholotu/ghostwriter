@@ -51,6 +51,7 @@ function renderDocInputs(id){
             <div style="width:100%;display:flex;margin-bottom:20px;">
                 <button id="processButton" class="editButton" onclick="processDocument()"><img src="static/assets/flash.svg">Fill in the blanks</button>
                 <button id="deleteButton" class="editButton" style="margin-left:10px" onclick="deleteCurrentDoc()"><img src="static/assets/trash.svg">Delete document</button>
+                
             </div>
             <div id="docContent" contenteditable="true" id="textbox"  oninput="updateTitleSave()">
                 ${cur.content}
@@ -124,6 +125,7 @@ function updateTitleSave(){
 }
 
 
+setTimeout(function(){
 // Save as .txt button logic
 const saveTxtButton = document.getElementById("saveTxtButton");
 if (saveTxtButton) {
@@ -197,3 +199,4 @@ function updateAuthButton() {
 }
 if (authButton) updateAuthButton();
 window.addEventListener("storage", updateAuthButton);
+},1000);

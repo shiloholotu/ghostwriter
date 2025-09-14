@@ -80,6 +80,7 @@ body{
 #docContent{
     outline:none;
     width: 100%;
+    transition: .25s;
 }
 
 #docContent b, #docContent strong {
