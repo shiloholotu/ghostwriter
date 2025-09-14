@@ -77,6 +77,16 @@ body{
     width: 100%;
 }
 
+#docContent b, #docContent strong {
+    background-color: var(--pretty-green);
+    padding:3px;
+    padding-left:6px;
+    padding-right:6px;
+    border-radius: 5px;
+    font-weight: 600;
+    color:var(--background);
+}
+
 .editButton{
     background: none;
     border: 2px solid white;
@@ -99,7 +109,7 @@ body{
 
 .editButton:hover{
     opacity: 1;
-    border:2px solid var(--pretty-purple);
+    border:2px solid var(--pretty-green);
 }
 
 #deleteButton:hover{
